@@ -89,8 +89,8 @@ llm-auto-insight-generator/
 
 ### 2. Clone Repository
 ```bash
-git clone https://github.com/Nainzee/llm-auto-insight-generator.git
-cd llm-auto-insight-generator
+git clone https://github.com/Nainzee/AI-Dataset-Insight-Generator.git
+cd AI-Dataset-Insight-Generator
 ```
 
 ### 3. Create Virtual Environment
