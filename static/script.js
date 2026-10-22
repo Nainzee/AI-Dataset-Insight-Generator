@@ -1,59 +1,104 @@
 function uploadDataset() {
-  let file = document.getElementById("fileInput").files[0];
+  const fileInput = document.getElementById("fileInput");
+  const analyzeBtn = document.getElementById("analyzeBtn");
+  const loadingIndicator = document.getElementById("loadingIndicator");
+  const errorMessage = document.getElementById("errorMessage");
+  const resultsDiv = document.getElementById("results");
+
+  const file = fileInput.files[0];
 
   if (!file) {
-    alert("Please upload dataset");
+    showError("Please select a CSV file before clicking Analyze Dataset.");
     return;
   }
 
-  let selectedCharts = [];
+  // Clear previous state
+  errorMessage.style.display = "none";
+  errorMessage.innerText = "";
+  resultsDiv.innerHTML = "";
 
-  document.querySelectorAll(".chart-options input:checked").forEach((c) => {
-    selectedCharts.push(c.value);
-  });
+  // Show loading state
+  loadingIndicator.style.display = "flex";
+  analyzeBtn.disabled = true;
+  analyzeBtn.classList.add("disabled");
+  analyzeBtn.innerText = "Analyzing...";
 
-  let formData = new FormData();
-
+  const formData = new FormData();
   formData.append("file", file);
-  formData.append("charts", JSON.stringify(selectedCharts));
-
-  document.getElementById("loading").style.display = "block";
 
   fetch("/upload", {
     method: "POST",
     body: formData,
   })
-    .then((res) => res.json())
-
+    .then(async (res) => {
+      const data = await res.json().catch(() => null);
+      if (!res.ok) {
+        const errorDetail = (data && data.error) ? data.error : `Server error (${res.status})`;
+        throw new Error(errorDetail);
+      }
+      return data;
+    })
     .then((data) => {
-      document.getElementById("loading").style.display = "none";
-
-      let div = document.getElementById("results");
-
-      div.innerHTML = "";
+      if (!Array.isArray(data) || data.length === 0) {
+        showError("No visual charts or insights could be generated for this dataset.");
+        return;
+      }
 
       data.forEach((item) => {
-        let card = document.createElement("div");
+        const card = document.createElement("div");
         card.className = "card";
 
-        let title = document.createElement("h3");
+        const title = document.createElement("h3");
         title.innerText = item.column;
 
-        let type = document.createElement("p");
-        type.innerHTML = "<b>Chart Type:</b> " + item.chart_type;
+        const type = document.createElement("div");
+        type.className = "chart-badge";
+        type.innerText = item.chart_type.toUpperCase();
 
-        let img = document.createElement("img");
-        img.src = "/charts/" + item.chart;
+        const imgWrapper = document.createElement("div");
+        imgWrapper.className = "chart-wrapper";
 
-        let insight = document.createElement("p");
-        insight.innerText = item.insight;
+        const img = document.createElement("img");
+        // Add cache buster timestamp so newly generated plots reload immediately
+        img.src = "/charts/" + encodeURIComponent(item.chart) + "?t=" + new Date().getTime();
+        img.alt = item.column + " chart";
+        img.loading = "lazy";
+
+        imgWrapper.appendChild(img);
+
+        const insightBox = document.createElement("div");
+        insightBox.className = "insight-box";
+
+        const insightLabel = document.createElement("strong");
+        insightLabel.innerText = "💡 AI Insight:";
+
+        const insightText = document.createElement("p");
+        insightText.innerText = item.insight;
+
+        insightBox.appendChild(insightLabel);
+        insightBox.appendChild(insightText);
 
         card.appendChild(title);
         card.appendChild(type);
-        card.appendChild(img);
-        card.appendChild(insight);
+        card.appendChild(imgWrapper);
+        card.appendChild(insightBox);
 
-        div.appendChild(card);
+        resultsDiv.appendChild(card);
       });
+    })
+    .catch((err) => {
+      showError(err.message || "An unexpected error occurred while analyzing the dataset.");
+    })
+    .finally(() => {
+      loadingIndicator.style.display = "none";
+      analyzeBtn.disabled = false;
+      analyzeBtn.classList.remove("disabled");
+      analyzeBtn.innerText = "Analyze Dataset";
     });
+}
+
+function showError(msg) {
+  const errorMessage = document.getElementById("errorMessage");
+  errorMessage.innerText = msg;
+  errorMessage.style.display = "block";
 }

@@ -12,9 +12,10 @@ def generate_statistics(df):
         if df[column].dtype in ["int64", "float64"]:
             stats[column] = {
                 "type": "numerical",
-                "mean": round(df[column].mean(), 2),
-                "min": df[column].min(),
-                "max": df[column].max()
+                "mean": round(float(df[column].mean()), 2),
+                "median": round(float(df[column].median()), 2),
+                "min": round(float(df[column].min()), 2),
+                "max": round(float(df[column].max()), 2)
             }
         else:
             stats[column] = {

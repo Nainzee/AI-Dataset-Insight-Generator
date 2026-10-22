@@ -1,1 +1,27 @@
+# Environments
 .env
+.venv/
+venv/
+ENV/
+
+# Python cache
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+
+# Jupyter Notebook
+.ipynb_checkpoints
+
+# OS / Editor files
+.DS_Store
+.vscode/
+.idea/
+
+# Dynamic outputs and generated datasets
+visualization/outputs/*.png
+!visualization/outputs/.gitkeep
+visualization/x.gitkeep
+data/cleaned_data.csv
+data/openpowerlifting.csv
+data/*.numbers

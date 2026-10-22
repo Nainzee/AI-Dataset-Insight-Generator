@@ -1,5 +1,8 @@
+flask
 pandas
 numpy
 matplotlib
-plotly
-jupyter
+seaborn
+groq
+python-dotenv
+gunicorn

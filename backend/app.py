@@ -1,10 +1,6 @@
 from flask import Flask, request, jsonify, render_template, send_from_directory
 import os
-import json
-import pandas as pd
-
 from backend.pipeline import run_pipeline
-from visualization.chart_generator import generate_chart
 
 app = Flask(__name__, template_folder="../templates", static_folder="../static")
 
@@ -19,30 +15,27 @@ def home():
 
 @app.route("/upload", methods=["POST"])
 def upload():
+    if "file" not in request.files:
+        return jsonify({"error": "No file uploaded. Please select a CSV file."}), 400
 
     file = request.files["file"]
+    if not file or file.filename == "":
+        return jsonify({"error": "No file selected."}), 400
 
-    filepath = os.path.join(app.config["UPLOAD_FOLDER"], file.filename)
+    try:
+        os.makedirs(app.config["UPLOAD_FOLDER"], exist_ok=True)
+        filepath = os.path.join(app.config["UPLOAD_FOLDER"], file.filename)
+        file.save(filepath)
 
-    file.save(filepath)
-
-    charts = request.form.get("charts")
-
-    if charts:
-        charts = json.loads(charts)
-    else:
-        charts = None
-
-    insights = run_pipeline(filepath, charts)
-
-    return jsonify(insights)
-
+        insights = run_pipeline(filepath)
+        return jsonify(insights)
+    except Exception as e:
+        app.logger.exception("Error processing dataset upload")
+        return jsonify({"error": f"Failed to analyze dataset: {str(e)}"}), 500
 
 @app.route('/charts/<path:filename>')
 def serve_chart(filename):
     return send_from_directory('../visualization/outputs', filename)
-
-
 
 
 if __name__ == "__main__":

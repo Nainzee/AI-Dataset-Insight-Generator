@@ -3,68 +3,40 @@
 
 <head>
 
-    <title>LLM Auto Insight Generator</title>
+<title>AI Dataset Insight Generator</title>
 
-    <link rel="stylesheet" href="/static/style.css">
+<link rel="stylesheet" href="/static/style.css">
 
 </head>
 
 <body>
 
-    <div class="container">
+<header>
 
-        <h1>📊 LLM Based Auto Insight Generator</h1>
+<h1>AI Dataset Insight Generator</h1>
 
-        <div class="upload-card">
+<p>Upload any dataset and get instant insights powered by AI</p>
 
-            <h3>Upload Dataset</h3>
+</header>
 
-            <input type="file" id="fileInput">
+<div class="upload-section">
 
-        </div>
+<input type="file" id="fileInput" accept=".csv">
 
+<button id="analyzeBtn" onclick="uploadDataset()">Analyze Dataset</button>
 
-        <div class="chart-options">
+<div id="errorMessage" class="error-banner" style="display: none;"></div>
 
-            <h3>Select Chart Types</h3>
+<div id="loadingIndicator" class="loading-state" style="display: none;">
+  <div class="spinner"></div>
+  <p id="loadingText">Processing dataset, rendering charts, and generating AI insights... Please wait.</p>
+</div>
 
-            <label><input type="checkbox" value="histogram" checked> Histogram</label>
+</div>
 
-            <label><input type="checkbox" value="box" checked> Box Plot</label>
+<div id="results" class="dashboard"></div>
 
-            <label><input type="checkbox" value="bar" checked> Bar Chart</label>
-
-            <label><input type="checkbox" value="pie"> Pie Chart</label>
-
-            <label><input type="checkbox" value="scatter" checked> Scatter Plot</label>
-
-            <label><input type="checkbox" value="heatmap" checked> Correlation Heatmap</label>
-
-        </div>
-
-
-        <button class="analyze-btn" onclick="uploadDataset()">
-
-            Analyze Dataset
-
-        </button>
-
-
-        <div id="loading">
-
-            Analyzing Dataset... 🤖
-
-        </div>
-
-
-        <div id="results">
-
-        </div>
-
-    </div>
-
-    <script src="/static/script.js"></script>
+<script src="/static/script.js"></script>
 
 </body>
-
 </html>
